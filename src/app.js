@@ -11,30 +11,36 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Servir archivos estáticos del frontend desde ambas carpetas
-app.use(express.static(path.join(__dirname, '../../frontend/client')));
-app.use(express.static(path.join(__dirname, '../../frontend/admin')));
-app.use(express.static(path.join(__dirname, '../../frontend')));
+// Detectar la ruta del frontend seg├║n el entorno (local o Render)
+const fs = require('fs');
+const localFrontend = path.join(__dirname, '../../frontend');
+const renderFrontend = path.join(__dirname, '../frontend');
+const FRONTEND_DIR = fs.existsSync(renderFrontend) ? renderFrontend : localFrontend;
+
+// Servir archivos est├íticos del frontend desde ambas carpetas
+app.use(express.static(path.join(FRONTEND_DIR, 'client')));
+app.use(express.static(path.join(FRONTEND_DIR, 'admin')));
+app.use(express.static(FRONTEND_DIR));
 
 // Rutas API
 app.use('/api/appointments', appointmentRoutes);
 
-// Rutas para servir páginas HTML
+// Rutas para servir p├íginas HTML
 app.get('/index.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/client/index.html'));
+  res.sendFile(path.join(FRONTEND_DIR, 'client/index.html'));
 });
 
 app.get('/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/admin/login.html'));
+  res.sendFile(path.join(FRONTEND_DIR, 'admin/login.html'));
 });
 
 app.get('/admin.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/admin/admin.html'));
+  res.sendFile(path.join(FRONTEND_DIR, 'admin/admin.html'));
 });
 
-// Ruta raíz
+// Ruta ra├¡z
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/client/index.html'));
+  res.sendFile(path.join(FRONTEND_DIR, 'client/index.html'));
 });
 
 // Manejo de errores
